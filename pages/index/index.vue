@@ -1,15 +1,17 @@
 <template>
 	<view class="content">
 		<view class="setup-icon"><span class="iconfont" @click="openSetUp">&#xe60c;</span></view>
-		<audio style="text-align: left" :src="rain.src" :name="rain.name" :action="audioAction" controls></audio>
-		<audio style="text-align: left" :src="bgm.src" :name="bgm.name" :action="audioAction" controls></audio>
-		
 		<view class="setup" blurEffect="light" v-if="setUpStatus">
-			<view>雨声<slider value="50" @change="sliderChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#ffb7b8"/></view>
-			<view>背景<slider value="50" @change="sliderChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#ffb7b8"/></view>
-			<view>定时关闭<slider value="50" @change="sliderChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#ffb7b8"/></view>
+			<view>雨声<slider :value="rain_volume * 100" @changing="rainChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#0A98D5"/></view>
+			<view>背景<slider :value="bgm_volume * 100" @changing="bgmChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#0A98D5"/></view>
+			<view>定时关闭<slider value="0" @change="sliderChange" show-value block-size="12" activeColor="#0A98D5" backgroundColor="#acccea" block-color="#0A98D5"/></view>
 
 			<view class="close"><span class="iconfont" @click="closeSetUp">&#xe60b;</span></view>
+		</view>
+		
+		<view class="control" v-if="!setUpStatus">
+			<span class="iconfont pause" @click="pause" v-if="isPlay">&#xe614;</span>
+			<span class="iconfont play" @click="play" v-if="!isPlay">&#xe629;</span>
 		</view>
 	</view>
 </template>
@@ -18,30 +20,68 @@
 	export default {
 		data() {
 			return {
-				"volume": 20,
+				"rain_volume": 0,
+				"bgm_volume": 0,
 				"setUpStatus": false,
-				"rain": {},
-				"bgm": {},
-				"alarm": {},
-				audioAction: {
-					method: 'pause'
-				}
+				"rain": null,
+				"bgm": null,
+				"alarm": null,
+				"isPlay": false,
 			}
 		},
-		onLoad() { 
-			this.rain = this.$store.getters.rain;
-			this.bgm = this.$store.getters.bgm;
-			this.alarm = this.$store.getters.alarm;
+		onLoad() {
+			let ts = this;
+			
+			uni.getStorage({
+				key: "rain_volume",
+				success: function (res) {
+					ts.rain_volume = res.data;
+				}
+			});
+			
+			uni.getStorage({
+				key: "bgm_volume",
+				success: function (res) {
+					ts.bgm_volume = res.data;
+				}
+			});
+		},
+		onShow() { 
+			if (!this.rain) {
+				this.rain = uni.createInnerAudioContext();
+				this.bgm = uni.createInnerAudioContext();
+			}
+			this.bgm.src = this.$store.getters.bgm.src;
+			this.rain.src = this.$store.getters.rain.src;
 		},
 		methods: {
-			sliderChange(e) {
-				console.log('value 发生变化：' + e.detail.value)
+			rainChange(e) {
+				this.rain.volume = this.rain_volume = e.detail.value / 100;
+				uni.setStorage({key: 'rain_volume',data: this.rain_volume});
 			},
+			bgmChange(e) {
+				this.bgm.volume = this.bgm_volume = e.detail.value / 100;
+				uni.setStorage({key: 'bgm_volume',data: this.bgm_volume});
+			},
+			
 			closeSetUp() {
 				this.setUpStatus = false;
 			},
 			openSetUp() {
 				this.setUpStatus = !this.setUpStatus;
+			},
+			pause() {
+				this.isPlay = false;
+				this.rain.pause();
+				this.bgm.pause();
+			},
+			play() {
+				this.rain.volume = this.rain_volume;
+				this.bgm.volume = this.bgm_volume;
+				
+				this.isPlay = true;
+				this.rain.play();
+				this.bgm.play();
 			}
 		}
 	}
@@ -52,6 +92,10 @@
 		width: 100vw;
 		height: 100vh;
 		position: relative;
+		background: url('https://img.nazzzz.cn/bg_rain.jpg');
+		background-repeat: no-repeat;
+		background-size: cover;
+		color: rgba(250, 250, 250, .8);
 	}
 
 	.setup-icon {
@@ -67,7 +111,7 @@
 	.setup {
 		width: 650rpx;
 		height: 90vh;
-		background-color: rgba(170, 170, 170, .5);
+		background-color: rgba(0, 0, 0, .5);
 		border-radius: 20px;
 		font-size: 30rpx;
 		overflow: hidden;
@@ -100,6 +144,24 @@
 		text-align: center;
 		position: absolute;
 		bottom: 10rpx;
+		color: rgba(250, 250, 250, .7);
+	}
+	
+	.control {
+		width: 100vw;
+		position: absolute;
+		bottom: 0;
+		text-align: center;
+		margin: 0;
+	}
+	
+	.control .play {
+		font-size: 120rpx;
+		line-height: 120rpx;
+	}
+	.control .pause {
+		font-size: 100rpx;
+		line-height: 120rpx;
 	}
 
 </style>

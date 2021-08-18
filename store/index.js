@@ -7,23 +7,43 @@ export default new Vuex.Store({
   state: {
     rain_list: [
       {
-        name: "致爱丽丝",
-        src: "https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-hello-uniapp/2cc220e0-c27a-11ea-9dfb-6da8e309e0d8.mp3",
+        name: "春雨舒缓",
+        src: "https://img.nazzzz.cn/rain_cysh.wav"
       },
+	  {
+	    name: "小雷雨",
+	    src: "https://img.nazzzz.cn/rain_xly.wav"
+	  },
+	  {
+	    name: "狂风暴雨",
+	    src: "https://img.nazzzz.cn/rain_hfby.wav"
+	  },
+	  {
+	    name: "暴雨哗哗哗",
+	    src: "https://img.nazzzz.cn/rain_byhhh.wav"
+	  }
     ],
     rain_index: 0,
     bgm_list: [
       {
-        name: "致爱丽丝",
-        src: "https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-hello-uniapp/2cc220e0-c27a-11ea-9dfb-6da8e309e0d8.mp3",
+        name: "Kiss The Rain",
+        src: "https://img.nazzzz.cn/bgm_KissTheRain.mp3"
       },
+	  {
+	    name: "致爱丽丝",
+	    src: "https://img.nazzzz.cn/bgm_elise.mp3"
+	  }
     ],
     bgm_index: 0,
     alarm_list: [
       {
-        name: "致爱丽丝",
-        src: "https://bjetxgzv.cdn.bspapp.com/VKCEYUGU-hello-uniapp/2cc220e0-c27a-11ea-9dfb-6da8e309e0d8.mp3",
+        name: "滴滴",
+        src: "https://img.nazzzz.cn/alarm_didi.wav"
       },
+	  {
+	    name: "布谷",
+	    src: "https://img.nazzzz.cn/alarm_bugu.wav"
+	  }
     ],
     alarm_index: 0,
   },
