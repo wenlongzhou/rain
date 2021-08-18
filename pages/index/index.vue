@@ -49,7 +49,9 @@
 		onShow() { 
 			if (!this.rain) {
 				this.rain = uni.createInnerAudioContext();
+				this.rain.loop = true;
 				this.bgm = uni.createInnerAudioContext();
+				this.bgm.loop = true;
 			}
 			this.bgm.src = this.$store.getters.bgm.src;
 			this.rain.src = this.$store.getters.rain.src;
