@@ -15,22 +15,11 @@
           backgroundColor="#acccea" block-color="#0A98D5" />
       </view>
       <view class="timeOptions">时间到后
-   <!--     <radio-group @change="radioChange">
+        <radio-group @change="radioChange">
           <label class="uni-list-row uni-list-row-pd" v-for="(item, index) in timeOptions" :key="item.value">
             {{item.name}} <radio :value="item.value" :checked="index === timeCurrent" />
           </label>
-        </radio-group> -->
-        
-        <view class="uni-list">
-          <radio-group @change="radioChange">
-            <label class="uni-list-cell uni-list-cell-pd" v-for="(item, index) in items" :key="item.value">
-              <view>
-                <radio :value="item.value" :checked="index === current" />
-              </view>
-              <view>{{item.name}}</view>
-            </label>
-          </radio-group>
-        </view>
+        </radio-group>
       </view>
 
       <view class="close"><span class="iconfont" @click="closeSetUp">&#xe60b;</span></view>
@@ -57,11 +46,11 @@
         timeOptions: [
           {
             name: "关闭",
-            view: 0,
+            value: 0,
           },
           {
             name: "闹钟",
-            view: 1,
+            value: 1,
           },
         ],
 				timeCurrent: 0,
@@ -104,6 +93,7 @@
         this.countdown = e.detail.value;
         if (this.countdown > 0) {
           let that = this;
+          clearInterval(that.countdownFun);
           this.countdownFun = setInterval(function() {
             that.countdown -= 1;
             if (that.countdown <= 0) {
@@ -111,7 +101,7 @@
               if (that.timeCurrent === 0) {
                 that.pause();
               } else {
-                this.isPlay = true;
+                that.isPlay = true;
                 that.alarm.play();
               }
             }
@@ -143,13 +133,12 @@
         this.rain.play();
         this.bgm.play();
       },
+      
       radioChange: function(evt) {
-        console.log(evt.detail.value);
-        
         for (let i = 0; i < this.timeOptions.length; i++) {
-          if (this.timeOptions[i].value === evt.detail.value) {
-              this.timeCurrent = i;
-              break;
+          if (this.timeOptions[i].value === parseInt(evt.detail.value)) {
+            this.timeCurrent = i;
+            break;
           }
         }
       }
