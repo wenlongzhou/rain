@@ -4,45 +4,30 @@
       <view class="uni-list-cell">
         <view class="uni-list-cell-left"> 雨声 </view>
         <view class="uni-list-cell-db">
-          <picker
-            @change="rainPickerChange"
-            :value="rain_index"
-            :range="rain"
-            range-key="name"
-          >
-            <view class="uni-input">{{ rain[rain_index].name }}</view>
+          <picker @change="rainPickerChange" :value="rainIndex" :range="rain" range-key="name">
+            <view class="uni-input">{{ rain[rainIndex].name }}</view>
           </picker>
         </view>
       </view>
     </view>
 
-		<view class="uni-list">
+    <view class="uni-list">
       <view class="uni-list-cell">
         <view class="uni-list-cell-left"> 背景 </view>
         <view class="uni-list-cell-db">
-          <picker
-            @change="bgmPickerChange"
-            :value="bgm_index"
-            :range="bgm"
-            range-key="name"
-          >
-            <view class="uni-input">{{ bgm[bgm_index].name }}</view>
+          <picker @change="bgmPickerChange" :value="bgmIndex" :range="bgm" range-key="name">
+            <view class="uni-input">{{ bgm[bgmIndex].name }}</view>
           </picker>
         </view>
       </view>
     </view>
 
-		<view class="uni-list">
+    <view class="uni-list">
       <view class="uni-list-cell">
         <view class="uni-list-cell-left"> 闹钟 </view>
         <view class="uni-list-cell-db">
-          <picker
-            @change="alarmPickerChange"
-            :value="alarm_index"
-            :range="alarm"
-            range-key="name"
-          >
-            <view class="uni-input">{{ alarm[alarm_index].name }}</view>
+          <picker @change="alarmPickerChange" :value="alarmIndex" :range="alarm" range-key="name">
+            <view class="uni-input">{{ alarm[alarmIndex].name }}</view>
           </picker>
         </view>
       </view>
@@ -50,51 +35,51 @@
   </view>
 </template>
 <script>
-export default {
-  data() {
-    return {
-      rain: [],
-			rain_index: 0,
-			bgm: [],
-			bgm_index: 0,
-			alarm: [],
-			alarm_index: 0,
-    };
-  },
-	onLoad() {
-		this.rain = this.$store.state.rain_list;
-		this.rain_index = this.$store.state.rain_index;
-		this.bgm = this.$store.state.bgm_list;
-		this.bgm_index = this.$store.state.bgm_index;
-		this.alarm = this.$store.state.alarm_list;
-		this.alarm_index = this.$store.state.alarm_index;
-	},
-  methods: {
-    rainPickerChange: function (e) {
-      this.rain_index = e.detail.value;
-			this.$store.commit('changeRain', this.rain_index);
+  export default {
+    data() {
+      return {
+        rain: [],
+        rainIndex: 0,
+        bgm: [],
+        bgmIndex: 0,
+        alarm: [],
+        alarmIndex: 0,
+      };
     },
-		bgmPickerChange: function (e) {
-      this.bgm_index = e.detail.value;
-			this.$store.commit('changeBgm', this.bgm_index);
+    onLoad() {
+      this.rain = this.$store.state.rainList;
+      this.rainIndex = this.$store.state.rainIndex;
+      this.bgm = this.$store.state.bgmList;
+      this.bgmIndex = this.$store.state.bgmIndex;
+      this.alarm = this.$store.state.alarmList;
+      this.alarmIndex = this.$store.state.alarmIndex;
     },
-		alarmPickerChange: function (e) {
-      this.alarm_index = e.detail.value;
-			this.$store.commit('changeAlarm', this.alarm_index);
+    methods: {
+      rainPickerChange: function(e) {
+        this.rainIndex = e.detail.value;
+        this.$store.commit('changeRain', this.rainIndex);
+      },
+      bgmPickerChange: function(e) {
+        this.bgmIndex = e.detail.value;
+        this.$store.commit('changeBgm', this.bgmIndex);
+      },
+      alarmPickerChange: function(e) {
+        this.alarmIndex = e.detail.value;
+        this.$store.commit('changeAlarm', this.alarmIndex);
+      },
     },
-  },
-};
+  };
 </script>
 
 <style>
-	.user-container {
-		width: 100vw;
-		height: 100vh;
-		background-color: rgb(250, 250, 250);
-		overflow: hidden;
-	}
+  .user-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(250, 250, 250);
+    overflow: hidden;
+  }
 
-	.uni-list {
-		margin-top: 50rpx;
-	}
+  .uni-list {
+    margin-top: 50rpx;
+  }
 </style>
