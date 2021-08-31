@@ -17,12 +17,12 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#f0f0f0",
-		"backgroundColor": "#d5d5d5"
+		"backgroundColor": "#efefef"
 	},
 	"tabBar": {
-		"color": "#505356",
+		"color": "#acb2b6",
 		"selectedColor": "#65c6ef",
-		"backgroundColor": "#ececec",
+		"backgroundColor": "#f6f6f6",
 		"list": [{
 				"pagePath": "pages/index/index",
 				"iconPath": "static/rain.png",

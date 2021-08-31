@@ -1,20 +1,11 @@
 <template>
   <view class="content">
-    <view class="setup-icon"><span class="iconfont" @click="openSetUp">&#xe60c;</span></view>
     <view class="setup" blurEffect="light" v-if="setUpStatus">
-      <view>雨声
-        <slider :value="rainVolume * 100" @changing="rainChanging" @change="rainChange" show-value block-size="12"
-          activeColor="#0A98D5" backgroundColor="#acccea" block-color="#0A98D5" />
-      </view>
-      <view>背景
-        <slider :value="bgmVolume * 100" @changing="bgmChanging" @change="bgmChange" show-value block-size="12"
-          activeColor="#0A98D5" backgroundColor="#acccea" block-color="#0A98D5" />
-      </view>
-      <view>定时
+      <view>定时（分）
         <slider :value="countdown" @change="timeChange" show-value block-size="12" activeColor="#0A98D5"
           backgroundColor="#acccea" block-color="#0A98D5" />
       </view>
-      <view class="timeOptions">时间到后
+      <view class="timeOptions">
         <radio-group @change="radioChange">
           <label class="uni-list-row uni-list-row-pd" v-for="(item, index) in timeOptions" :key="item.value">
             {{item.name}} <radio :value="item.value" :checked="index === timeCurrent" />
@@ -22,12 +13,14 @@
         </radio-group>
       </view>
 
-      <view class="close"><span class="iconfont" @click="closeSetUp">&#xe60b;</span></view>
+      <view class="close"><span class="iconfont" @click="closeSetUp">&#xe60d;</span></view>
     </view>
 
-    <view class="control" v-if="!setUpStatus">
-      <span class="iconfont pause" @click="pause" v-if="isPlay">&#xe614;</span>
-      <span class="iconfont play" @click="play" v-if="!isPlay">&#xe629;</span>
+    <view class="control">
+      <span class="iconfont pause" @click="pause" v-if="isPlay">&#xe616;</span>
+      <span class="iconfont play" @click="play" v-if="!isPlay">&#xe615;</span>
+      <span class="iconfont setup-icon" @click="openSetUp">&#xe675;</span>
+      <span v-if="test"><span v-if="test1"></span></span>
     </view>
   </view>
 </template>
@@ -36,12 +29,7 @@
   export default {
     data() {
       return {
-        rainVolume: 0,
-        bgmVolume: 0,
         setUpStatus: false,
-        rain: null,
-        bgm: null,
-        alarm: null,
         isPlay: false,
         timeOptions: [
           {
@@ -56,39 +44,25 @@
 				timeCurrent: 0,
         countdown: 0,
         countdownFun: null,
+        music: null,
+        isAlarm: false,
+        playCurrent: 0,
       }
     },
     onLoad() {
-      this.rain = uni.createInnerAudioContext();
-      this.rain.loop = true;
-      this.rain.volume = this.rainVolume = uni.getStorageSync('rainVolume') ? uni.getStorageSync('rainVolume') : 0.2;
-      
-      this.bgm = uni.createInnerAudioContext();
-      this.bgm.loop = true;
-      this.bgm.volume = this.bgmVolume = uni.getStorageSync('bgmVolume') ? uni.getStorageSync('bgmVolume') : 0.2;
-      
-      this.alarm = uni.createInnerAudioContext();
-      this.alarm.loop = true;
-      this.alarm.volume = 0.2;
+      this.musicLoad();
     },
     onShow() {
-      this.rain.src = this.$store.getters.rain.src;
-      this.bgm.src = this.$store.getters.bgm.src;
-      this.alarm.src = this.$store.getters.alarm.src;
+      if (this.music.paused == true) {
+        this.isPlay = false;
+      }
+      
+      //切歌回来时
+      if (!this.isAlarm && this.isPlay && this.music.src && this.music.src != this.$store.getters.music) {
+        this.music.src = this.$store.getters.music;
+      }
     },
     methods: {
-      rainChange(e) {
-        uni.setStorage({
-          key: 'rainVolume',
-          data: this.rainVolume
-        });
-      },
-      bgmChange(e) {
-        uni.setStorage({
-          key: 'bgmVolume',
-          data: this.bgmVolume
-        });
-      },
       timeChange(e) {
         this.countdown = e.detail.value;
         if (this.countdown > 0) {
@@ -99,20 +73,15 @@
             if (that.countdown <= 0) {
               clearInterval(that.countdownFun);
               if (that.timeCurrent === 0) {
-                that.pause();
+                that.stop();
               } else {
                 that.isPlay = true;
-                that.alarm.play();
+                that.music.src = that.$store.getters.alarm.src;
+                that.isAlarm = true;
               }
             }
           }, 1000);
         }
-      },
-      rainChanging(e) {
-        this.rain.volume = this.rainVolume = e.detail.value / 100;
-      },
-      bgmChanging(e) {
-        this.bgm.volume = this.bgmVolume = e.detail.value / 100;
       },
 
       closeSetUp() {
@@ -122,16 +91,48 @@
         this.setUpStatus = !this.setUpStatus;
       },
 
+      musicLoad() {
+        this.music = uni.getBackgroundAudioManager();
+        this.music.title = this.$store.getters.musicName;
+        this.music.singer = '暂无';
+        this.music.coverImgUrl = '';
+        this.music.loop = true;
+        this.music.onPause(function() {
+          this.isPlay = false;
+          if (this.isAlarm) this.stop();
+        });
+        this.music.onPlay(function() {
+          this.isPlay = true;
+          if (this.isAlarm) this.play();
+        });
+        this.music.onEnded(this.repeat);
+      },
       pause() {
+        if (this.isPlay === false) return;
         this.isPlay = false;
-        this.rain.pause();
-        this.bgm.pause();
-        this.alarm.stop();
+        this.isAlarm = false;
+        this.playCurrent = this.music.currentTime;
+        this.music.stop();
       },
       play() {
+        if (this.isPlay === true) return;
         this.isPlay = true;
-        this.rain.play();
-        this.bgm.play();
+        this.musicLoad();
+        this.music.src = this.$store.getters.music;
+        this.music.seek(this.playCurrent); //微信小程序不支持这个
+        this.music.startTime = this.playCurrent;
+        this.music.play();
+      },
+      stop() {
+        this.isPlay = false;
+        this.music.stop();
+      },
+      repeat() {
+        if (this.isAlarm) {
+          this.music.src = this.$store.getters.alarm.src;
+        } else {
+          this.music.src = this.$store.getters.music;
+        }
       },
       
       radioChange: function(evt) {
@@ -142,7 +143,7 @@
           }
         }
       }
-    }
+    },
   }
 </script>
 
@@ -151,59 +152,38 @@
     width: 100vw;
     height: 100vh;
     position: relative;
-    background: url('https://img.nazzzz.cn/bg_rain.jpg');
+    background: url('https://img.nazzzz.cn/bg_rain.png');
     background-repeat: no-repeat;
     background-size: cover;
-    color: rgba(250, 250, 250, .8);
+    color: rgba(250, 250, 250, .4);
   }
 
   .setup-icon {
-    width: 100vw;
-    overflow: hidden;
-    text-align: right;
-  }
-
-  .setup-icon .iconfont {
     font-size: 60rpx;
+    line-height: 120rpx;
   }
-
+    
   .setup {
-    width: 650rpx;
-    height: 90vh;
+    width: 600rpx;
+    height: 60vh;
     background-color: rgba(0, 0, 0, .5);
-    border-radius: 20px;
+    border-radius: 30rpx;
     font-size: 30rpx;
     overflow: hidden;
     position: absolute;
-    top: 5vh;
-    left: 50rpx;
+    top: 20vh;
+    left: 75rpx;
+    color: rgba(250, 250, 250, 0.7);
   }
-
-  .setup>view {
-    display: flex;
-    justify-content: space-between;
-
-    margin: 100rpx 30rpx;
-  }
-
-  .setup slider {
-    width: 400rpx;
-    margin: 0 20rpx;
-  }
-
-  .setup>.close {
+  
+  .setup > view {
     width: 100%;
-    margin: 0 !important;
-  }
-
-  .setup>.close>.iconfont {
-    font-size: 100rpx;
-    color: white;
-    width: 100%;
+    margin: 60rpx auto;
     text-align: center;
-    position: absolute;
-    bottom: 10rpx;
-    color: rgba(250, 250, 250, .7);
+  }
+  
+  .setup > view > slider {
+    margin-left: 100rpx;
   }
   
   .setup .uni-list-row {
@@ -212,11 +192,23 @@
   }
   
   .setup radio-group {
-    width: 400rpx;
+    width: 350rpx;
+    margin: 0 auto;
   }
   
-  .setup .timeOptions {
-     line-height: 24px;
+  .setup>.close {
+    width: 100%;
+    margin: 0 !important;
+    position: absolute;
+    bottom: 50rpx;
+  }
+
+  .setup>.close>.iconfont {
+    font-size: 70rpx;
+    color: white;
+    width: 100%;
+    text-align: center;
+    color: rgba(250, 250, 250, .4);
   }
 
   .control {
@@ -233,7 +225,7 @@
   }
 
   .control .pause {
-    font-size: 100rpx;
+    font-size: 120rpx;
     line-height: 120rpx;
   }
 </style>

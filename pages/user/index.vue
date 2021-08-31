@@ -81,5 +81,21 @@
 
   .uni-list {
     margin-top: 50rpx;
+    margin-left: 5vw;
+    height: 110rpx;
+    width: 90vw;
+    border: none;
+    box-shadow: 7rpx 7rpx 10rpx #dadada;
+  }
+  
+  .uni-list > .uni-list-cell {
+    height: 100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap; 
+  }
+  
+  .uni-list::before,.uni-list::after {
+    background-color: white;
   }
 </style>

@@ -5,51 +5,78 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    musicName: '',
     rainList: [{
-        name: "春雨舒缓",
-        src: "https://img.nazzzz.cn/rain_cysh.wav"
+        name: "无",
+        fileName: '',
+      },{
+        name: "小雨浠沥沥",
+        fileName: 'rainXyxll',
       },
       {
         name: "小雷雨",
-        src: "https://img.nazzzz.cn/rain_xly.wav"
+        fileName: "rainLy"
       },
       {
-        name: "狂风暴雨",
-        src: "https://img.nazzzz.cn/rain_hfby.wav"
+        name: "大雨",
+        fileName: "rainKfby"
       },
       {
-        name: "暴雨哗哗哗",
-        src: "https://img.nazzzz.cn/rain_byhhh.wav"
+        name: "森林的雨",
+        fileName: "rainSldy"
       }
     ],
-    rainIndex: uni.getStorageSync('rainIndex') ? uni.getStorageSync('bgmIndex') : 0,
+    rainIndex: typeof(uni.getStorageSync('rainIndex')) === 'number' ? uni.getStorageSync('rainIndex') : 1,
     bgmList: [{
+        name: "无",
+        fileName: '',
+      },{
         name: "Kiss The Rain",
-        src: "https://img.nazzzz.cn/bgm_KissTheRain.mp3"
+        fileName: "bgmKissTheRain"
       },
       {
-        name: "致爱丽丝",
-        src: "https://img.nazzzz.cn/bgm_elise.mp3"
+        name: "Eternal Flame",
+        fileName: "bgmEternalFlame"
+      },
+      {
+        name: "In Autumn, the Leaves Came to Our House",
+        fileName: "bgmInAutumn"
       }
     ],
-    bgmIndex: uni.getStorageSync('bgmIndex') ? uni.getStorageSync('bgmIndex') : 0,
+    bgmIndex: typeof(uni.getStorageSync('bgmIndex')) === 'number' ? uni.getStorageSync('bgmIndex') : 1,
     alarmList: [{
         name: "滴滴",
-        src: "https://img.nazzzz.cn/alarm_didi.wav"
+        src: "https://img.nazzzz.cn/DiDi.mp3"
       },
       {
         name: "布谷",
-        src: "https://img.nazzzz.cn/alarm_bugu.wav"
+        src: "https://img.nazzzz.cn/BuGu.mp3"
       }
     ],
-    alarmIndex: uni.getStorageSync('alarmIndex') ? uni.getStorageSync('bgmIndex') : 0,
+    alarmIndex: typeof(uni.getStorageSync('alarmIndex')) === 'number' ? uni.getStorageSync('alarmIndex') : 0,
   },
   getters: {
-    rain(state) {
-      return state.rainList[state.rainIndex];
+    music(state) {
+      let fileName = '';
+      if (state.bgmIndex >= 0) {
+        fileName += state.bgmList[state.bgmIndex].fileName;
+      }
+      if (state.rainIndex >= 0) {
+        fileName += state.rainList[state.rainIndex].fileName;
+      }
+      
+      return  `https://img.nazzzz.cn/${fileName}.mp3`;
     },
-    bgm(state) {
-      return state.bgmList[state.bgmIndex];
+    musicName(state) {
+      let musicName = [];
+      if (state.bgmIndex >= 0) {
+        musicName.push(state.bgmList[state.bgmIndex].name);
+      }
+      if (state.rainIndex >= 0) {
+        musicName.push(state.rainList[state.rainIndex].name);
+      }
+      
+      return musicName.join(' ');
     },
     alarm(state) {
       return state.alarmList[state.alarmIndex];
@@ -60,21 +87,21 @@ export default new Vuex.Store({
       state.rainIndex = index;
       uni.setStorage({
         key: 'rainIndex',
-        data: index
+        data: parseInt(index)
       });
     },
     changeBgm(state, index) {
       state.bgmIndex = index;
       uni.setStorage({
         key: 'bgmIndex',
-        data: index
+        data: parseInt(index)
       });
     },
     changeAlarm(state, index) {
       state.alarmIndex = index;
       uni.setStorage({
         key: 'alarmIndex',
-        data: index
+        data: parseInt(index)
       });
     }
   }
